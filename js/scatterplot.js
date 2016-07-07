@@ -3,6 +3,7 @@ window.addEventListener('DOMContentLoaded', function() {
   var w = 600;
   var h = 400;
   var dataSet = []
+  var pointList = d3.select("#point-list");
 
   var svg = d3.select('#graph')
               .append('svg')
@@ -19,6 +20,7 @@ window.addEventListener('DOMContentLoaded', function() {
     };
     dataSet.push(newData);
     draw(dataSet, svg);
+    updateList(pointList, newData);
   });
 
   function draw(data, el) {
@@ -58,6 +60,14 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // TODO: remove old circles
     
+  }
+
+  function updateList(list, data) {
+    var removeButton = "<span class='glyphicon glyphicon-remove pull-right'></span>"
+    list
+      .append('li')
+      .classed('list-group-item', true)
+      .html(`x: ${data.x}, y: ${data.y}, r: ${data.r}, color: ${data.color} ${removeButton}`)
   }
 
 });
