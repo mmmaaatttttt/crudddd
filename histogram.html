@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>CruDDD</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <nav class="navbar navbar-inverse">
@@ -20,7 +21,12 @@
   </nav>
   <div class="container">
     <h1>Here's a histogram:</h1>
-    <div id="graph"></div>
+    <div class="row">
+      <div class="col-sm-6"></div>
+      <div class="col-sm-6">
+        <div id="graph"></div>
+      </div>
+    </div>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.0/d3.js"></script>
   <script src="/js/histogram.js"></script>
