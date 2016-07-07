@@ -1,33 +1,39 @@
+// 2. add delete functionality
+// 3. add padding to canvas for points on edge
+// 4. refactor
+
 window.addEventListener('DOMContentLoaded', function() {
 
   var w = 600;
   var h = 400;
-  var dataSet = []
+  var dataSet = [];
   var pointList = d3.select("#point-list");
-  var x = d3.select('#x')
-  var y = d3.select('#y')
-  var r = d3.select('#r')
-  var color = d3.select('#color')
+  var x = d3.select('#x').node();
+  var y = d3.select('#y').node();
+  var r = d3.select('#r').node();
+  var color = d3.select('#color').node();
 
   var svg = d3.select('#graph')
               .append('svg')
               .attr('width', w)
               .attr('height', h);
 
+  initializeGraph(svg);
+
   d3.selectAll('input[type="button"]').on('click', function() {
     var newData;
     if (this.value === 'Plot') {
       newData = { 
-        x: +this.x.value, 
-        y: +this.y.value,
-        r: +this.r.value,
-        color: this.color.value
+        x: +x.value, 
+        y: +y.value,
+        r: +r.value,
+        color: color.value
       };
     } else {
       newData = {
         x: getRandom(-100, 100, 0.1),
         y: getRandom(-100, 100, 0.1),
-        r: getRandom(0, 25, 0.1),
+        r: getRandom(1, 25, 0.1),
         color: getRandomHex()
       };
     }
@@ -38,19 +44,30 @@ window.addEventListener('DOMContentLoaded', function() {
 
   function draw(data, el) {
     // create scales
-    var xmin = d3.min(data, d => d.x);
-    var xmax = d3.max(data, d => d.x);
-    var ymin = d3.min(data, d => d.y);
-    var ymax = d3.max(data, d => d.y);
+    var xmin = data.length === 1 ? data[0].x - 1 : d3.min(data, d => d.x);
+    var xmax = data.length === 1 ? data[0].x + 1 : d3.max(data, d => d.x);
+    var ymin = data.length === 1 ? data[0].y - 1 : d3.min(data, d => d.y);
+    var ymax = data.length === 1 ? data[0].y + 1 : d3.max(data, d => d.y);
     var xScale = d3.scaleLinear()
                    .domain([xmin, xmax])
-                   .range([0, w])
+                   .range([0, el.attr('width')])
     var yScale = d3.scaleLinear()
                    .domain([ymin, ymax])
-                   .range([h,0]) 
+                   .range([el.attr('height'),0]) 
+    var xAxis = d3.axisTop(xScale);
+    var yAxis = d3.axisRight(yScale);
+
+    // update axes
+    el.select('.xaxis')
+      .transition(750)
+      .call(xAxis)
+
+    el.select('.yaxis')
+      .transition(750)
+      .call(yAxis)
+
     var circles = el.selectAll('circle')
                     .data(data);
-
     // update existing circles
     circles
       .transition()
@@ -58,9 +75,9 @@ window.addEventListener('DOMContentLoaded', function() {
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', d => d.r)
-      .attr('fill', d => d.color)
+      .attr('fill', d => d.color);
 
-    // draw new circle
+    // draw new circle (if necessary)
     circles
       .enter()
       .append('circle')
@@ -69,10 +86,27 @@ window.addEventListener('DOMContentLoaded', function() {
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', d => d.r)
-      .attr('fill', d => d.color)
+      .attr('fill', d => d.color);
 
     // TODO: remove old circles
     
+  }
+
+  function initializeGraph(el) {
+    var xScale = d3.scaleLinear()
+                   .domain([-1, 1])
+                   .range([0, el.attr('width')])
+    var yScale = d3.scaleLinear()
+                   .domain([-1, 1])
+                   .range([el.attr('height'),0]) 
+    var xAxis = d3.axisTop(xScale);
+    var yAxis = d3.axisRight(yScale);
+
+    el.append('g').attr('transform', `translate(0,${el.attr('height')-1})`)
+                  .attr('class', 'xaxis')
+                  .call(xAxis);
+    el.append('g').attr('class', 'yaxis')
+                  .call(yAxis);
   }
 
   function getRandom(min, max, step) {
