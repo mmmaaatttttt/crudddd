@@ -12,9 +12,9 @@ window.addEventListener('DOMContentLoaded', function() {
   d3.select('form').on('submit', function() {
     d3.event.preventDefault();
     var newData = { 
-      x: this.x.value, 
-      y: this.y.value,
-      r: this.r.value,
+      x: +this.x.value, 
+      y: +this.y.value,
+      r: +this.r.value,
       color: this.color.value
     };
     dataSet.push(newData);
@@ -33,16 +33,31 @@ window.addEventListener('DOMContentLoaded', function() {
     var yScale = d3.scaleLinear()
                    .domain([ymin, ymax])
                    .range([h,0]) 
+    var circles = el.selectAll('circle')
+                    .data(data);
 
-    // draw circles
-    el.selectAll('circle')
-      .data(data)
-      .enter()
-      .append('circle')
+    // update existing circles
+    circles
+      .transition()
+      .duration(750)
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', d => d.r)
       .attr('fill', d => d.color)
+
+    // draw new circle
+    circles
+      .enter()
+      .append('circle')
+      .transition()
+      .duration(750)
+      .attr('cx', d => xScale(d.x))
+      .attr('cy', d => yScale(d.y))
+      .attr('r', d => d.r)
+      .attr('fill', d => d.color)
+
+    // TODO: remove old circles
+    
   }
 
 });
