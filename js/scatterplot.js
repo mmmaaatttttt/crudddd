@@ -1,11 +1,8 @@
-// 2. add delete functionality
-// 3. add padding to canvas for points on edge
-// 4. refactor
-
 window.addEventListener('DOMContentLoaded', function() {
 
   var w = 600;
   var h = 400;
+  var margin = 25;
   var dataSet = [];
   var pointList = d3.select("#point-list");
   var x = d3.select('#x').node();
@@ -18,7 +15,7 @@ window.addEventListener('DOMContentLoaded', function() {
               .attr('width', w)
               .attr('height', h);
 
-  initializeGraph(svg);
+  initializeGraph(svg, margin);
 
   d3.selectAll('input[type="button"]').on('click', function() {
     var newData;
@@ -38,11 +35,11 @@ window.addEventListener('DOMContentLoaded', function() {
       };
     }
     dataSet.push(newData);
-    draw(dataSet, svg);
+    draw(dataSet, svg, margin);
     updateList(pointList, newData);
   });
 
-  function draw(data, el) {
+  function draw(data, el, margin) {
     // create scales
     var xmin = data.length === 1 ? data[0].x - 1 : d3.min(data, d => d.x);
     var xmax = data.length === 1 ? data[0].x + 1 : d3.max(data, d => d.x);
@@ -50,10 +47,10 @@ window.addEventListener('DOMContentLoaded', function() {
     var ymax = data.length === 1 ? data[0].y + 1 : d3.max(data, d => d.y);
     var xScale = d3.scaleLinear()
                    .domain([xmin, xmax])
-                   .range([0, el.attr('width')])
+                   .range([margin, el.attr('width') - margin])
     var yScale = d3.scaleLinear()
                    .domain([ymin, ymax])
-                   .range([el.attr('height'),0]) 
+                   .range([el.attr('height') - margin,margin]) 
     var xAxis = d3.axisTop(xScale);
     var yAxis = d3.axisRight(yScale);
 
@@ -87,18 +84,22 @@ window.addEventListener('DOMContentLoaded', function() {
       .attr('cy', d => yScale(d.y))
       .attr('r', d => d.r)
       .attr('fill', d => d.color);
-
-    // TODO: remove old circles
     
   }
 
-  function initializeGraph(el) {
+  pointList.on('click', function() {
+    if (d3.select(d3.event.target).classed('glyphicon-remove')) {
+      console.log("DELETE!");
+    }
+  });
+
+  function initializeGraph(el, margin) {
     var xScale = d3.scaleLinear()
                    .domain([-1, 1])
-                   .range([0, el.attr('width')])
+                   .range([margin, el.attr('width')-margin])
     var yScale = d3.scaleLinear()
                    .domain([-1, 1])
-                   .range([el.attr('height'),0]) 
+                   .range([el.attr('height')-margin,margin]) 
     var xAxis = d3.axisTop(xScale);
     var yAxis = d3.axisRight(yScale);
 
@@ -124,11 +125,10 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   function updateList(list, data) {
-    var removeButton = "<span class='glyphicon glyphicon-remove pull-right'></span>"
     list
       .append('li')
       .classed('list-group-item', true)
-      .html(`x: ${data.x}, y: ${data.y}, r: ${data.r}, color: ${data.color} ${removeButton}`)
+      .html(`x: ${data.x}, y: ${data.y}, r: ${data.r}, color: ${data.color}`)
   }
 
 });
